@@ -1,4 +1,13 @@
 import sqlite3
+from email_sender import send_encouraging_email  # Import the function from email_sender.py
+
+
+def insert_company(name):
+    query = "INSERT INTO Companies (name) VALUES (?)"
+    values = (name,)
+    cursor.execute(query, values)
+    connection.commit()
+    print("Company inserted successfully.")
 
 def insert_application(company_id, position, date_submitted):
    query = "INSERT INTO JobApplications (company_id, position, date_submitted) VALUES (?, ?, ?)"
@@ -6,11 +15,6 @@ def insert_application(company_id, position, date_submitted):
    cursor.execute(query, values)
    connection.commit()
 
-def get_applications_by_company(company_id):
-   query = "SELECT * FROM JobApplications WHERE company_id = ?"
-   cursor.execute(query, (company_id,))
-   applications = cursor.fetchall()
-   return applications
 
 
 # More functions and code
@@ -19,8 +23,18 @@ connection = sqlite3.connect('job_applications.db')
 cursor = connection.cursor()
 
 try:
+    # Insert a new company 
+    insert_company("VHB")
+
+    # Retrieve the ID of the newly inserted company
+    cursor.execute("SELECT last_insert_rowid()")
+    company_id = cursor.fetchone()[0]
+
     # Insert a new job application
-    insert_application(1, 'Software Developer', '2023-08-15')
+    insert_application(company_id, "Data Architect", "2023-08-22")
+
+    # Send an encouraging email
+    send_encouraging_email("Data Architect", 'recipient@example.com')
 
     # Retrieve and print job applications for a specific company
     applications = get_applications_by_company(1)
